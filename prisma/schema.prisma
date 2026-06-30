@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+}
+
+enum Role {
+  USER
+  SERVICE_PROVIDER
+}
+
+model User {
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  username         String
+  email            String    @unique
+  password         String
+  resetToken       String?
+  resetTokenExpiry DateTime?
+  role             Role      @default(USER)
+  service          Service[]
+  booking          Booking[]
+  token            Token?
+  createdAt        DateTime  @default(now())
+}
+
+model Token {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  tokenId   String   @unique
+  userId    String   @db.ObjectId @unique
+  user      User     @relation(fields: [userId], references: [id])
+  token     String
+  createdAt DateTime @default(now())
+}
+
+model Service {
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  name         String         
+  description  String?        
+  duration     Int            
+  userId       String         @db.ObjectId
+  user         User           @relation(fields: [userId], references: [id])
+  avaliability Avaliability[]
+  booking      Booking[]
+}
+
+model Avaliability {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  serviceId String   @db.ObjectId
+  service   Service  @relation(fields: [serviceId], references: [id])
+  dayOfWeek Int      
+  startTime String   
+  endTime   String   
+}
+
+model Booking {
+  id        String        @id @default(auto()) @map("_id") @db.ObjectId
+  serviceId String        @db.ObjectId
+  service   Service       @relation(fields: [serviceId], references: [id])
+  userId    String        @db.ObjectId
+  user      User          @relation(fields: [userId], references: [id])
+  startTime DateTime
+  endTime   DateTime
+  status    BookingStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  REJECTED
+  MISSED
+}
