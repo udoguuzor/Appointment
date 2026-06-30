@@ -3,8 +3,10 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const prisma = new PrismaClient({
-  datasourceUrl: process.env.DATABASE_URL,
-});
+const prisma = new PrismaClient();
 
-export { prisma };
+// Add this log to verify everything works!
+console.log("🚀 Database configuration loaded successfully!");
+console.log("Connected to database path:", process.env.DATABASE_URL);
+
+export { prisma }
